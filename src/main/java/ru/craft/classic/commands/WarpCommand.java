@@ -94,15 +94,15 @@ public class WarpCommand implements CommandExecutor {
             }
 
             case "list": {
-                int tmpPage = 1;
+                int tmp = 1;
                 if (strings.length >= 2) {
                     try {
-                        tmpPage = Math.max(1, Integer.parseInt(strings[1]));
-                    } catch (NumberFormatException ignored) {
-                    }
+                        tmp = Math.max(1, Integer.parseInt(strings[1]));
+                    } catch (NumberFormatException ignored) {}
                 }
-                final int page = tmpPage;        // гарантируем "effectively final"
-                final int pageSize = 50;
+
+                final int page = tmp;
+                final int pageSize = 20;
 
                 plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
                     int total = warpService.countPublic();
@@ -110,20 +110,26 @@ public class WarpCommand implements CommandExecutor {
                         sync(player, "§7Публичных варпов пока нет.");
                         return;
                     }
-
                     int pages = (total + pageSize - 1) / pageSize;
-                    int safePage = Math.min(page, pages);
+                    int safePage = Math.min(page, pages);    // ок: page — final
                     int offset = (safePage - 1) * pageSize;
 
                     var list = warpService.listPublic(pageSize, offset);
-                    String joined = list.isEmpty()
-                            ? "§7(пусто)"
-                            : String.join(", ", list.stream().map(w -> w.getName()).toList());
 
-                    sync(player, String.format("§aПубличные варпы (§eстраница %d/%d, всего %d§a): %s",
-                            safePage, pages, total, joined));
+                    // собираем вывод столбиком с нумерацией
+                    StringBuilder body = new StringBuilder();
+                    for (int i = 0; i < list.size(); i++) {
+                        var w = list.get(i);
+                        int num = offset + i + 1;
+                        body.append("§7").append(num).append(". §e").append(w.getName()).append('\n');
+                    }
+                    if (body.length() == 0) body.append("§7(пусто)");
+
+                    sync(player, String.format("§aПубличные варпы (§eстр. %d/%d, всего %d§a):\n%s",
+                            safePage, pages, total, body.toString().trim()));
+
                     if (safePage < pages) {
-                        sync(player, "§7Следующая: §e/warp list " + (safePage + 1));
+                        sync(player, "§7Следующая страница: §e/warp list " + (safePage + 1));
                     }
                 });
                 return true;
