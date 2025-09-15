@@ -1,0 +1,15 @@
+name: WarpPlugin
+main: ru.craft.classic.WarpPlugin
+version: 1.0.0
+api-version: 1.20
+author: Kalimulin.D.A
+softdepend: [AuthMe]
+
+commands:
+  warp:
+    description: Управление варпами
+    usage: /warp
+
+permissions:
+  warp.use: { default: true }
+  warp.manage: { default: true }

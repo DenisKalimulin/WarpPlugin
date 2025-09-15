@@ -1,0 +1,12 @@
+database:
+  app:
+    url: "url"
+    user: "app_user"
+    pass: "app_pass"
+  authme:
+    url: "url"
+    user: "auth_user"
+    pass: "auth_pass"
+
+warps:
+  per-user-limit: 3
